@@ -1,0 +1,53 @@
+# Go specific
+/bin/
+/pkg/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/vendor/
+*.sum
+
+# Main Go binary files
+server
+coraza_validate_schema_extras
+
+# Go test cache
+.testCacheDir
+
+# Compiled Object files, Static and Dynamic libs
+*.o
+*.a
+
+# Log files
+*.log
+
+# Output of the go coverage tool
+*.cover
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux specific
+*~
+.directory
+.Trash-*
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor specific
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+# Add any project-specific files to ignore

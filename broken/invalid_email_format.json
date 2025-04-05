@@ -1,0 +1,10 @@
+{
+  "name": "John Doe",
+  "email": "john.doe!example",
+  "age": 30,
+  "role": "admin",
+  "settings": {
+    "notifications": true,
+    "theme": "dark"
+  }
+}

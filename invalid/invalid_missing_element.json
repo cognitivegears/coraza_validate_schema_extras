@@ -1,0 +1,9 @@
+{
+  "name": "John Doe",
+  "age": 30,
+  "role": "admin",
+  "settings": {
+    "notifications": true,
+    "theme": "dark"
+  }
+}

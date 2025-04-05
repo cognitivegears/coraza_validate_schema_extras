@@ -1,0 +1,10 @@
+{
+  "name": "J",
+  "age": 150,
+  "role": "superadmin",
+  "extra_field": "This field is not in the schema",
+  "settings": {
+    "notifications": "yes",
+    "theme": 123
+  }
+}
