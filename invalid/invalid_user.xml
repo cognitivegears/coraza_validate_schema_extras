@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<user id="user123">
-  <name>John Doe</name>
-  <!-- Missing required email field -->
-  <age>thirty</age> <!-- Invalid type: should be number -->
-  <role>superadmin</role> <!-- Invalid role: not in enum -->
-</user>

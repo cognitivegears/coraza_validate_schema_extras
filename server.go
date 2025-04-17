@@ -35,10 +35,9 @@ func main() {
 			SecRequestBodyLimit 10485760
 			SecRequestBodyInMemoryLimit 10485760
 
-			# Include validation rules
-			Include %s/rules/xml_validation.conf
-			Include %s/rules/json_validation.conf
-		`, dir, dir), "\t\t\t", "")).
+				# Include validation rules
+				Include %s/rules/json_validation.conf
+		`, dir), "\t\t\t", "")).
 		WithErrorCallback(func(rule types.MatchedRule) {
 			log.Printf("[CORAZA ERROR] %s", rule.ErrorLog)
 		}))
@@ -80,14 +79,12 @@ func main() {
 Schema Validation Test Server
 
 Available Endpoints:
-- POST /validate (with XML or JSON content)
+- POST /validate (with JSON content)
 - GET /schemas/user.json
-- GET /schemas/user.xsd
 
 To test validation:
-1. For XML: curl -X POST -H "Content-Type: application/xml" --data @valid_user.xml http://localhost:%d/validate
-2. For JSON: curl -X POST -H "Content-Type: application/json" --data @valid_user.json http://localhost:%d/validate
-`, *port, *port)
+1. For JSON: curl -X POST -H "Content-Type: application/json" --data @valid_user.json http://localhost:%d/validate
+`, *port)
 	})
 
 	// Start server

@@ -132,6 +132,21 @@ These guides provide comprehensive information on configuration requirements, ex
 
 - Go 1.18 or higher
 - Coraza WAF v3
+## Using a Custom Coraza Branch
+
+This project is configured to use a Git submodule for Coraza, tracking the `feature/schema` branch of the
+[`cognitivegears/coraza`](https://github.com/cognitivegears/coraza) repository.
+
+To initialize and update the submodule:
+```bash
+git submodule update --init
+```
+
+After updating submodules, build or run the server as usual:
+```bash
+go build -o validate-server .
+go run server.go
+```
 
 ## License
 

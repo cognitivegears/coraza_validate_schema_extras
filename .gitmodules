@@ -1,0 +1,4 @@
+[submodule "coraza"]
+	path = coraza
+	url = https://github.com/cognitivegears/coraza
+	branch = feature/schema
