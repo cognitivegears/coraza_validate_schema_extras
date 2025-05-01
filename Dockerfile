@@ -24,6 +24,10 @@ RUN go mod download || go mod tidy
 # Copy the rest of the application source code
 COPY . .
 
+# Fix missing dependencies before building
+RUN go get rsc.io/binaryregexp
+RUN go mod tidy
+
 # Build the application
 # Use CGO_ENABLED=0 for static linking if needed, but Coraza might require CGO
 # The -ldflags="-s -w" flags strip debugging information and symbols to reduce binary size.
