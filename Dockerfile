@@ -5,8 +5,13 @@ FROM golang:1.24-alpine AS builder
 WORKDIR /app
 
 # Copy module files first for caching
-COPY go.mod go.sum ./
+COPY go.mod ./
+# Copy go.sum if it exists
+COPY go.sum* ./
+
+# Copy Coraza module files
 COPY coraza/go.mod coraza/go.sum coraza/
+# Copy Coraza workspace file
 COPY coraza/go.work coraza/
 
 # Copy the Coraza submodule source
@@ -14,7 +19,7 @@ COPY coraza/go.work coraza/
 COPY coraza/ /app/coraza/
 
 # Download dependencies for the main module and the submodule
-RUN go mod download
+RUN go mod download || go mod tidy
 
 # Copy the rest of the application source code
 COPY . .
