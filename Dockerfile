@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy module files first for caching
 COPY go.mod go.sum ./
 COPY coraza/go.mod coraza/go.sum coraza/
-COPY coraza/go.work coraza/go.work.sum coraza/
+COPY coraza/go.work coraza/
 
 # Copy the Coraza submodule source
 # Ensure the submodule is initialized locally before building: git submodule update --init
@@ -41,8 +41,8 @@ COPY --from=builder /validate-server /app/validate-server
 COPY rules /app/rules
 COPY schemas /app/schemas
 
-# Define the default path for rules, which can be mounted over
-ENV CORAZA_RULES_DIR=/etc/coraza/rules
+# Define the default path for rules, which can be overridden by environment variable
+ENV CORAZA_RULES_DIR=/app
 
 # Expose the default port the server runs on
 EXPOSE 8080
