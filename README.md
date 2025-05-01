@@ -1,15 +1,15 @@
 # Coraza Schema Validation Test Project
 
-This project demonstrates and validates the `@validateSchema` operator implementation in [Coraza WAF](https://github.com/corazawaf/coraza), focusing on both JSON and XML schema validation capabilities.
+This project demonstrates and validates the `@validateSchema` operator implementation in [Coraza WAF](https://github.com/corazawaf/coraza), focusing on JSON schema validation capabilities.
 
 ## Overview
 
-The Coraza Web Application Firewall (WAF) includes a powerful new `@validateSchema` operator that validates incoming JSON and XML data against formal schemas. This project provides a test server and sample files to verify and demonstrate this functionality.
+The Coraza Web Application Firewall (WAF) includes a powerful new `@validateSchema` operator that validates incoming JSON data against formal schemas. This project provides a test server and sample files to verify and demonstrate this functionality.
 
 ## Features
 
 - Test server that uses Coraza's schema validation capabilities
-- Sample JSON and XML schemas for validation
+- Sample JSON schemas for validation
 - Valid and invalid test files for both formats
 - Comprehensive configuration examples
 - Detailed guides for implementation
@@ -26,10 +26,8 @@ The Coraza Web Application Firewall (WAF) includes a powerful new `@validateSche
 │   └── main.conf
 ├── schemas/            # Schema definition files
 │   ├── user.json       # JSON Schema definition
-│   └── user.xsd        # XML Schema Definition
 ├── server.go           # Test server implementation
 ├── validate_json_schema_guide.md  # JSON validation guide
-└── validate_xml_schema_guide.md   # XML validation guide
 ```
 
 ## How It Works
@@ -47,11 +45,6 @@ The project implements a simple HTTP server with Coraza WAF integration that:
   - Enables JSON body processing
   - Validates against the `schemas/user.json` schema
   - Checks for required fields, types, formats, and constraints
-
-- For XML content types:
-  - Enables XML body processing
-  - Validates against the `schemas/user.xsd` schema
-  - Verifies elements, attributes, types, and constraints
 
 ## Usage
 
@@ -103,15 +96,6 @@ The JSON schema (`schemas/user.json`) validates user objects with:
 - Enumeration restrictions for specific fields
 - Nested object validation
 
-### XML Schema
-
-The XML schema (`schemas/user.xsd`) validates user elements with:
-- Required attribute: id
-- Required elements: name, email, age
-- Optional elements: role
-- Type validation for all elements
-- Enumeration restrictions for the role element
-
 ## Implementation Details
 
 The ModSecurity rules in the `rules/` directory show how to:
@@ -124,7 +108,6 @@ The ModSecurity rules in the `rules/` directory show how to:
 For detailed information on implementing schema validation in your own applications:
 
 - [JSON Schema Validation Guide](validate_json_schema_guide.md)
-- [XML Schema Validation Guide](validate_xml_schema_guide.md)
 
 These guides provide comprehensive information on configuration requirements, examples, security benefits, and troubleshooting tips.
 
@@ -132,6 +115,8 @@ These guides provide comprehensive information on configuration requirements, ex
 
 - Go 1.18 or higher
 - Coraza WAF v3
+- Docker (for containerized deployment)
+
 ## Using a Custom Coraza Branch
 
 This project is configured to use a Git submodule for Coraza, tracking the `feature/schema` branch of the
@@ -147,6 +132,71 @@ After updating submodules, build or run the server as usual:
 go build -o validate-server .
 go run server.go
 ```
+
+## Docker Container Usage
+
+This project includes a `Dockerfile` to build a containerized version of the validation server. This allows for easy testing and deployment, especially when working with custom rule sets.
+
+### Building the Docker Image
+
+Ensure you have initialized the Coraza submodule first:
+```bash
+git submodule update --init
+```
+
+Then, build the Docker image:
+```bash
+docker build -t coraza-validate-server .
+```
+
+### Running the Container
+
+To run the container with the default embedded rules and schemas, exposing port 8080:
+```bash
+docker run -p 8080:8080 --rm coraza-validate-server
+```
+
+The server inside the container will listen on port 8080.
+
+### Running with Custom Rules and Schemas
+
+To test your own Coraza rules and schemas, you can mount a local directory into the container. The container expects the rules directory structure to be:
+
+```
+your-custom-rules-dir/
+├── rules/
+│   └── main.conf  # Your main entry point for rules
+│   └── (other .conf files included by main.conf)
+└── schemas/
+    └── (your .json schema files)
+```
+
+Mount your local directory (e.g., `./my-custom-rules`) to `/etc/coraza/rules` inside the container:
+
+```bash
+docker run -p 8080:8080 -v $(pwd)/my-custom-rules:/etc/coraza/rules --rm coraza-validate-server
+```
+
+Replace `$(pwd)/my-custom-rules` with the absolute path to your custom rules directory.
+The server inside the container will automatically load `main.conf` from the mounted `/etc/coraza/rules/rules/` directory and serve schemas from `/etc/coraza/rules/schemas/`.
+
+### Testing the Containerized Server
+
+Once the container is running (either with default or custom rules), you can test it using `curl` as described in the [Testing Validation](#testing-validation) section, targeting `http://localhost:8080`.
+
+Example:
+```bash
+# Test valid JSON against the container
+curl -X POST -H "Content-Type: application/json" --data @valid/valid_user.json http://localhost:8080/validate
+```
+
+### Viewing Logs
+
+The server logs (including Coraza errors and validation successes/failures) are printed to the standard output of the container. You can view them directly in the terminal where you ran `docker run` or using `docker logs <container_id>` if running detached.
+
+## GitHub Actions: Docker Build and Release
+
+A GitHub Actions workflow is included in `.github/workflows/docker-release.yml`. This workflow automatically builds the Docker image when changes are pushed to the `main` branch. For tagged commits (e.g., `v1.0.0`), it will also create a GitHub Release and attach the built server binary as an asset (Note: It currently does not push the Docker image to a registry).
 
 ## License
 
