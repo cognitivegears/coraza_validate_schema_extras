@@ -51,3 +51,5 @@ Desktop.ini
 
 # Project specific
 # Add any project-specific files to ignore
+
+**/.claude/settings.local.json

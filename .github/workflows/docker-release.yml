@@ -1,5 +1,8 @@
 name: Docker Build and Release
 
+# This workflow builds and publishes multi-architecture Docker images
+# Supported architectures: linux/amd64 (x86_64) and linux/arm64 (Apple M-series)
+
 on:
   push:
     branches:
@@ -16,15 +19,22 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: 'arm64,amd64'
+          
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -32,7 +42,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/coraza-validate-server
           tags: |
@@ -43,19 +53,21 @@ jobs:
             type=sha
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+      - name: Build and push multi-architecture Docker image
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Test image (only on main/tags, not PRs)
         if: github.event_name != 'pull_request'
         run: |
+          # We can only test the image for the runner's architecture
           # Pull the image we just pushed
           docker pull $(echo "${{ steps.meta.outputs.tags }}" | head -n 1)
           # Run a basic test - check if the container starts properly
@@ -66,6 +78,8 @@ jobs:
           docker ps | grep test-container
           # Clean up
           docker rm -f test-container || true
+          # Note: We can only test the architecture of the runner (typically amd64)
+          # The multi-arch push ensures both architectures are available
 
       - name: Build server binary for release
         if: startsWith(github.ref, 'refs/tags/')
@@ -77,7 +91,7 @@ jobs:
           CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o validate-server-windows-amd64.exe server.go
 
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
