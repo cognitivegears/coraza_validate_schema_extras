@@ -47,8 +47,6 @@ COPY --from=builder /validate-server /app/validate-server
 
 # Copy default rules and schemas into the image
 # These can be overridden by the volume mount
-COPY rules /app/rules
-COPY schemas /app/schemas
 
 # Define the default path for rules, which can be overridden by environment variable
 ENV CORAZA_RULES_DIR=/app
